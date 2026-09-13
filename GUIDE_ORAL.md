@@ -22,15 +22,21 @@ Ce document sert à expliquer le projet simplement, sans apprendre des phrases t
 
 > Les variables texte ont été transformées en colonnes numériques avec le One-Hot Encoding.
 
-À retenir : un modèle a besoin de données numériques propres.
-
 ## 4. Expliquer le train/test
 
 > J'ai séparé les données en deux parties : 80 % pour entraîner le modèle et 20 % pour le tester.
 
 > Le jeu de test n'est pas utilisé pendant l'entraînement. Il sert à vérifier si le modèle fonctionne sur des données qu'il n'a jamais vues.
 
-## 5. Expliquer les trois modèles
+## 5. Montrer que j'ai compris avec une baseline
+
+> Avant les vrais modèles, j'ai créé une baseline naïve qui prédit toujours la classe majoritaire, donc "pas de churn".
+
+> Comme environ 73,5 % des clients ne churnent pas, cette baseline peut avoir une Accuracy correcte. Mais son Recall est nul, donc elle ne détecte aucun churner.
+
+À retenir : **une Accuracy correcte ne veut pas forcément dire qu'un modèle est utile**.
+
+## 6. Expliquer les trois modèles
 
 ### Régression logistique
 
@@ -44,7 +50,7 @@ Ce document sert à expliquer le projet simplement, sans apprendre des phrases t
 
 > C'est un ensemble de plusieurs arbres de décision. Chaque arbre donne son avis et la forêt combine leurs décisions.
 
-## 6. Expliquer les métriques
+## 7. Expliquer les métriques
 
 ### Accuracy
 
@@ -68,9 +74,24 @@ Pour ce projet, le Recall est important parce qu'on veut éviter de rater trop d
 
 > C'est une mesure globale de la capacité du modèle à différencier les churners des non-churners. Plus le score est proche de 1, mieux c'est.
 
-Tu n'as pas besoin d'expliquer la formule mathématique.
+## 8. Expliquer la matrice de confusion
 
-## 7. Expliquer l'optimisation
+- vrai positif : le modèle prédit churn et le client churn vraiment ;
+- faux positif : le modèle prédit churn mais le client reste ;
+- faux négatif : le modèle prédit qu'il reste mais le client churn ;
+- vrai négatif : le modèle prédit qu'il reste et il reste vraiment.
+
+> Pour l'entreprise, le faux négatif peut être plus coûteux car elle ne détecte pas un client qui va partir.
+
+## 9. Montrer que j'ai compris le sur-apprentissage
+
+> J'ai comparé les performances sur le train et sur le test.
+
+> Si un modèle est excellent sur le train mais beaucoup moins bon sur le test, cela peut vouloir dire qu'il a trop appris les données d'entraînement. C'est le sur-apprentissage.
+
+À retenir : un bon modèle doit fonctionner aussi sur des données qu'il n'a jamais vues.
+
+## 10. Expliquer l'optimisation
 
 > J'ai utilisé GridSearchCV pour tester quelques valeurs d'hyperparamètres automatiquement.
 
@@ -80,9 +101,17 @@ Tu n'as pas besoin d'expliquer la formule mathématique.
 
 > Au lieu de tester un réglage sur un seul découpage, la validation croisée fait plusieurs découpages du jeu d'entraînement et calcule une moyenne.
 
-À retenir : cela rend le choix du réglage plus fiable.
+## 11. Expliquer le seuil 40 %, 50 %, 60 %
 
-## 8. Résultats à retenir
+> La régression logistique donne une probabilité de churn. Par défaut, on utilise un seuil de 50 %.
+
+> J'ai aussi testé 40 % et 60 % pour voir l'effet sur Precision et Recall.
+
+> Si je baisse le seuil, je détecte plus de churners mais je crée plus de fausses alertes. Si je monte le seuil, je signale moins de clients mais je risque d'en manquer davantage.
+
+À retenir : **le seuil dépend du besoin métier**.
+
+## 12. Résultats à retenir
 
 ### Régression logistique
 
@@ -92,19 +121,17 @@ Tu n'as pas besoin d'expliquer la formule mathématique.
 
 ### Random Forest
 
-- Accuracy : environ 76 %
-- Recall : environ 78 %
-- ROC-AUC : environ 0,84
+- ROC-AUC légèrement supérieur après optimisation, autour de 0,84
 
 > La Random Forest est légèrement meilleure sur le ROC-AUC, mais la différence est très faible.
 
-## 9. Pourquoi choisir la régression logistique ?
+## 13. Pourquoi choisir la régression logistique ?
 
 > J'ai choisi la régression logistique comme modèle principal parce que ses performances sont proches de la Random Forest, mais elle est beaucoup plus simple à interpréter et à expliquer.
 
 > Pour moi, dans ce projet, le meilleur modèle n'est pas seulement celui qui a le score le plus élevé. Il faut aussi pouvoir comprendre ce qu'il fait.
 
-## 10. Variables importantes
+## 14. Variables importantes
 
 Tu peux citer simplement :
 
@@ -118,28 +145,33 @@ Tu peux citer simplement :
 
 Ne dis pas que ces variables "causent" le churn. Dis qu'elles sont **associées** au churn dans les données.
 
-## 11. Matrice de confusion
+## 15. Recommandation métier
 
-Si on te montre une matrice :
+> Le modèle pourrait servir à classer les clients par niveau de risque. L'équipe rétention pourrait ensuite contacter en priorité les clients les plus à risque avec une offre ou une enquête de satisfaction.
 
-- vrai positif : le modèle prédit churn et le client churn vraiment ;
-- faux positif : le modèle prédit churn mais le client reste ;
-- faux négatif : le modèle prédit qu'il reste mais le client churn ;
-- vrai négatif : le modèle prédit qu'il reste et il reste vraiment.
+> Le modèle aide à prioriser, mais il ne remplace pas la décision humaine.
 
-Pour l'entreprise, le faux négatif peut être coûteux car elle ne détecte pas un client qui va partir.
+## 16. Limites du projet
 
-## 12. Limites du projet
+> Le modèle apprend à partir de données historiques. Les comportements peuvent changer dans le temps.
 
-> Le modèle apprend à partir de données historiques. Il peut détecter un risque mais il ne sait pas expliquer la vraie raison personnelle du départ d'un client.
+> Le dataset ne contient pas toutes les raisons personnelles qui peuvent expliquer un départ.
 
-> Il faudrait aussi vérifier régulièrement que les comportements des clients ne changent pas dans le temps.
+> Le modèle détecte des associations, pas des causes.
 
-## 13. Conclusion orale courte
+> En production, il faudrait contrôler régulièrement les performances et réentraîner le modèle avec des données récentes.
 
-> J'ai nettoyé et analysé les données, puis comparé trois modèles de classification. La Random Forest donne légèrement le meilleur ROC-AUC, mais j'ai retenu la régression logistique car elle offre des performances très proches tout en étant plus simple à expliquer. Le modèle pourrait servir à identifier les clients à risque afin que l'entreprise puisse agir avant leur départ.
+## 17. Ce que j'ai appris
 
-## 14. Questions probables du jury
+> J'ai compris qu'un projet Machine Learning ne consiste pas seulement à entraîner un modèle. Il faut aussi nettoyer les données, choisir les bonnes métriques, comparer train et test, analyser les erreurs et relier les résultats au besoin métier.
+
+> J'ai aussi compris qu'un modèle plus complexe n'est pas forcément meilleur si un modèle simple donne presque les mêmes résultats.
+
+## 18. Conclusion orale courte
+
+> J'ai commencé par analyser et nettoyer les données. J'ai créé une baseline pour vérifier qu'une bonne Accuracy pouvait être trompeuse. J'ai ensuite comparé trois modèles, étudié leurs erreurs, vérifié le sur-apprentissage, testé quelques hyperparamètres et plusieurs seuils de décision. La Random Forest obtient un ROC-AUC légèrement supérieur, mais j'ai retenu la régression logistique car elle est presque aussi performante et beaucoup plus facile à interpréter. Le modèle pourrait aider une entreprise télécom à identifier plus tôt les clients à risque.
+
+## 19. Questions probables du jury
 
 **Pourquoi supprimer customerID ?**
 
@@ -151,7 +183,19 @@ Parce qu'elle est moins sensible aux valeurs extrêmes que la moyenne.
 
 **Pourquoi pas seulement l'Accuracy ?**
 
-Parce que seulement environ 26,5 % des clients churnent. Un modèle peut avoir une bonne Accuracy tout en détectant mal les churners.
+Parce que seulement environ 26,5 % des clients churnent. Une baseline qui prédit toujours "pas de churn" peut déjà avoir une Accuracy correcte tout en étant inutile.
+
+**Pourquoi avoir créé une baseline ?**
+
+Pour avoir un point de comparaison très simple et vérifier que mes vrais modèles apportent réellement quelque chose.
+
+**Pourquoi regarder train et test ?**
+
+Pour vérifier que le modèle généralise et qu'il ne mémorise pas seulement les données d'entraînement.
+
+**Pourquoi tester plusieurs seuils ?**
+
+Parce que le seuil change le compromis entre Precision et Recall. Le meilleur seuil dépend du coût métier des erreurs.
 
 **Pourquoi la régression logistique ?**
 
@@ -164,3 +208,7 @@ C'est un réglage choisi avant l'entraînement, par exemple la profondeur maxima
 **Qu'est-ce que le sur-apprentissage ?**
 
 C'est quand un modèle apprend trop précisément les données d'entraînement et devient moins bon sur de nouvelles données.
+
+**Est-ce que les variables importantes causent le churn ?**
+
+Non. Elles sont associées au churn dans ce dataset, mais cela ne prouve pas une relation de cause à effet.
